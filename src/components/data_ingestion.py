@@ -25,8 +25,7 @@ class DataIngestion():
             self.data_ingestion_config = data_ingestion_config
         except Exception as e:
             raise ScorePredictionException(e, sys)
-        
-    # 1 step: read data from MongoDB an transform into a df     
+          
     def export_mongo_collection_as_df(self):
         '''
         Read data from MongoDB
@@ -44,24 +43,29 @@ class DataIngestion():
         except Exception as e:
             raise ScorePredictionException(e, sys)
         
-    # 2 step: export data to feature store (in these case is a csv file)
-    def export_data_into_feature_store(self,dataframe: pd.DataFrame):
+    def export_data_into_feature_store(self, dataframe: pd.DataFrame):
+        '''
+        Export data to feature store (in these case is a csv file), but we 
+        can use AWS SageMaker as a feature store for example
+        '''
         try:
             feature_store_file_path=self.data_ingestion_config.feature_store_file_path
             # Creating folder
             dir_path = os.path.dirname(feature_store_file_path)
-            os.makedirs(dir_path,exist_ok=True)
-            dataframe.to_csv(feature_store_file_path,index=False,header=True)
+            os.makedirs(dir_path, exist_ok=True)
+            dataframe.to_csv(feature_store_file_path, index=False, header=True)
             return dataframe
             
         except Exception as e:
             raise ScorePredictionException(e,sys)
         
-    # 3 step: feature engineering and train test split
-    def split_data_as_train_test(self,dataframe: pd.DataFrame):
+    def split_data_as_train_test(self, dataframe: pd.DataFrame):
+        '''
+        Execute train test split
+        '''
         try:
             train_set, test_set = train_test_split(
-                dataframe, test_size=self.data_ingestion_config.train_test_split_ratio
+                dataframe, test_size=self.data_ingestion_config.train_test_split_ratio, random_state=42
             )
             logger.info("Performed train test split on the dataframe")
 
@@ -75,7 +79,6 @@ class DataIngestion():
             
             logger.info(f"Exporting train and test file path.")
             
-            # 4 step: ingest data into directory with .csv files
             train_set.to_csv(
                 self.data_ingestion_config.training_file_path, index=False, header=True
             )

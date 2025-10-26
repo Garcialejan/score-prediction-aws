@@ -1,11 +1,11 @@
 from src.components.data_ingestion import DataIngestion
-# from src.components.data_validation import DataValidation
+from src.components.data_validation import DataValidation
 # from src.components.data_transformation import DataTransformation
 # from src.components.model_trainer import ModelTrainer
 from src.exception.exception import ScorePredictionException
 from src.logging.logger import logger
 
-from src.entity.config_entity import DataIngestionConfig #, DataValidationConfig, DataTransformationConfig, ModelTrainerConfig
+from src.entity.config_entity import DataIngestionConfig , DataValidationConfig #, DataTransformationConfig, ModelTrainerConfig
 from src.entity.config_entity import TrainingPipelineConfig
 
 import sys
@@ -21,6 +21,14 @@ if __name__=='__main__':
         data_ingestion_artifact = data_ingestion.initiate_data_ingestion()
         logger.info("Data ingestion completed")
         print(data_ingestion_artifact)
+        
+        # Data Validation 
+        data_validation_config=DataValidationConfig(training_pipeline_config)
+        data_validation=DataValidation(data_ingestion_artifact, data_validation_config)
+        logger.info("Initiate the data validation")
+        data_validation_artifact = data_validation.initiate_data_validation()
+        logger.info("Data validation completed")
+        print(data_validation_artifact)
         
     except Exception as e:
            raise ScorePredictionException(e,sys)

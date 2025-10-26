@@ -6,8 +6,12 @@ scikit-learn
 catboost
 xgboost
 dotenv
+pymongo[srv]
 pymongo
-pymongo[srv]==3.6
 certifi
+ensure
+python-box
+pyYAML
+pyaml
 
 -e .

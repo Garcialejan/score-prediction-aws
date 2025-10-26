@@ -29,7 +29,7 @@ def get_requirements()->List[str]:
 
 setup(
     name="score_prediction_aws",
-    version="0.0.2",
+    version="0.0.3",
     author="Alejandro Garcia",
     author_email="garcialejan@gmail.com",
     packages=find_packages(where="."),
