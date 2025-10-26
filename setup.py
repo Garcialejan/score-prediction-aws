@@ -11,7 +11,6 @@ from typing import List
 def get_requirements()->List[str]:
     """
     Thiss function will return list of requirements
-    
     """
     HYPEN_E_DOT = '-e .'
     requirement_lst:List[str]=[]
@@ -30,7 +29,7 @@ def get_requirements()->List[str]:
 
 setup(
     name="score_prediction_aws",
-    version="0.0.1",
+    version="0.0.2",
     author="Alejandro Garcia",
     author_email="garcialejan@gmail.com",
     packages=find_packages(where="."),
