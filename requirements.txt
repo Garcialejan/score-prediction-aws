@@ -5,5 +5,9 @@ matplotlib
 scikit-learn
 catboost
 xgboost
+dotenv
+pymongo
+pymongo[srv]==3.6
+certifi
 
 -e .
