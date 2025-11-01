@@ -27,7 +27,7 @@ class DataValidation:
     @staticmethod
     def read_data(file_path) -> pd.DataFrame:
         try:
-            return pd.read_csv(file_path)
+            return pd.read_csv(file_path, index_col=0)
         except Exception as e:
             raise ScorePredictionException(e,sys)
         
@@ -92,6 +92,8 @@ class DataValidation:
                 if not test_dtype_valid:
                     logger.error("Test: Data type mismatch.")
             else:
+                dir_path=os.path.dirname(self.data_validation_config.valid_train_file_path)
+                os.makedirs(dir_path,exist_ok=True)
                 train_dataframe.to_csv(
                     self.data_validation_config.valid_train_file_path, index=False, header=True
                 )
