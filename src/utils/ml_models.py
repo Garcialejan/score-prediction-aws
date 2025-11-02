@@ -73,8 +73,8 @@ def get_regresion_score(y_true,y_pred) -> RegresionMetricArtifact:
 
         regresion_metric =  RegresionMetricArtifact(
             r2 = model_r2,
-            rmse=model_rmse,
-            mae=model_mae,
+            rmse = model_rmse,
+            mae = model_mae,
             )
         return regresion_metric
     except Exception as e:

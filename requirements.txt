@@ -13,5 +13,7 @@ ensure
 python-box
 pyYAML
 pyaml
+mlflow
+dagshub
 
 -e .

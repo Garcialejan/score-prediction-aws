@@ -2,6 +2,7 @@ import os
 import sys
 
 from catboost import CatBoostRegressor
+from catboost import CatBoost
 from sklearn.ensemble import (
     AdaBoostRegressor,
     GradientBoostingRegressor,
@@ -9,6 +10,7 @@ from sklearn.ensemble import (
 )
 from sklearn.linear_model import ElasticNet
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.base import BaseEstimator
 from xgboost import XGBRegressor
 from xgboost import XGBModel
 
@@ -22,6 +24,15 @@ from src.entity.config_entity import ModelTrainerConfig
 from src.constants import RANDOM_FOREST_PARAMS, GRADIENT_BOOSTING_PARAMS, XGB_PARAMS,\
                           CATBOOSTING_PARAMS, ADABOOST_PARAMS, KNEIGHBORS_PARAMS, ELASTICNET_PARAMS
 
+import mlflow
+from urllib.parse import urlparse
+
+from dotenv import load_dotenv
+load_dotenv()
+tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("MLFLOW_TRACKING_USERNAME")
+os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("MLFLOW_TRACKING_PASSWORD")
+
 class ModelTrainer:
     def __init__(self,
                  model_trainer_config: ModelTrainerConfig,
@@ -32,7 +43,54 @@ class ModelTrainer:
             
         except Exception as e:
             raise ScorePredictionException(e, sys)
-            
+        
+    def track_mlflow(self, best_model, regression_train_metric, regression_test_metric=None):
+        mlflow.set_tracking_uri(tracking_uri)        
+        mlflow.set_experiment("Best model ScorePrediction project")
+        
+        with mlflow.start_run(run_name = "Best_model_params"):
+            # Set a tag that we can use to remind ourselves what this run was for
+            mlflow.set_tag("Training Info", "Best model from hyperparameter-tunning with Grid Search")
+            mlflow.set_tag("model_type", best_model.__class__.__name__)
+                                  
+            mlflow.log_metrics({
+                "r2": regression_train_metric.r2,
+                "rmse": regression_train_metric.rmse,
+                "mae": regression_train_metric.mae
+                })
+            if regression_test_metric is not None:
+                mlflow.log_metrics({
+                    "test_r2": regression_test_metric.r2,
+                    "test_rmse": regression_test_metric.rmse,
+                    "test_mae": regression_test_metric.mae
+                })
+                
+            # I want to know if the model is a sklearn model or a xgb model
+            model_name = best_model.__class__.__name__
+            tracking_scheme = urlparse(mlflow.get_tracking_uri()).scheme
+            register_model = tracking_scheme != "file"
+            # Model registry does not work with file store
+            if isinstance(best_model, CatBoost):
+                mlflow.catboost.log_model(
+                    cb_model=best_model,
+                    artifact_path="model",
+                    registered_model_name=model_name if register_model else None
+                )
+            elif isinstance(best_model, XGBModel):
+                mlflow.xgboost.log_model(
+                    xgb_model=best_model,
+                    artifact_path="model",
+                    registered_model_name=model_name if register_model else None
+                )
+            elif isinstance(best_model, BaseEstimator):
+                mlflow.sklearn.log_model(
+                    sk_model=best_model,
+                    artifact_path="model",
+                    registered_model_name=model_name if register_model else None
+                )
+            else:
+                raise TypeError(f"Model type {type(best_model)} is not supported for logging with MLflow.")
+                                
     def train_model(self, X_train, y_train, X_test, y_test):
         '''
         Function to train the model with hyperparameter tunning
@@ -76,10 +134,11 @@ class ModelTrainer:
         
         best_model = models[best_model_name]
         y_train_pred = best_model.predict(X_train)
-        regresion_train_metric = get_regresion_score(y_true = y_train, y_pred = y_train_pred)
-        
         y_test_pred = best_model.predict(X_test)
+        regresion_train_metric = get_regresion_score(y_true = y_train, y_pred = y_train_pred)
         regresion_test_metric = get_regresion_score(y_true = y_test, y_pred = y_test_pred)
+        #* Track the with MLFlow
+        self.track_mlflow(best_model, regression_train_metric=regresion_train_metric, regression_test_metric=regresion_test_metric)
         
         preprocessor = load_object(file_path = self.data_transformation_artifact.transformed_object_file_path)
         model_dir_path = os.path.dirname(self.model_trainer_config.trained_model_file_path)
