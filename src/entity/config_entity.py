@@ -105,3 +105,22 @@ class DataTransformationConfig:
             constants.DATA_TRANSFORMATION_TRANSFORMED_OBJECT_DIR,
             constants.PREPROCESSING_OBJECT_FILE_NAME
         )
+
+# ''' Old version for ModelTrainerConfig()'''       
+# @dataclass
+# class ModelTrainerConfig:
+#     trained_model_file_path=os.path.join("artifacts","model.pkl")
+
+class ModelTrainerConfig:
+    def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        self.model_trainer_dir: str = os.path.join(
+            training_pipeline_config.artifact_dir,
+            constants.MODEL_TRAINER_DIR_NAME
+        )
+        self.trained_model_file_path: str = os.path.join(
+            self.model_trainer_dir,
+            constants.MODEL_TRAINER_TRAINED_MODEL_DIR, 
+            constants.MODEL_FILE_NAME
+        )
+        self.expected_r2: float = constants.MODEL_TRAINER_EXPECTED_R2
+        self.overfitting_underfitting_threshold = constants.MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD

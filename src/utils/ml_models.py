@@ -4,8 +4,24 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
 from src.exception.exception import ScorePredictionException
 from sklearn.model_selection import GridSearchCV
-
 from src.entity.artifact_entity import RegresionMetricArtifact
+
+class ScoreModel:
+    def __init__(self, preprocessor, model):
+        try:
+            self.preprocessor = preprocessor
+            self.model = model
+        except Exception as e:
+            raise ScorePredictionException(e,sys)
+    
+    def predict(self,x):
+        try:
+            x_transform = self.preprocessor.transform(x)
+            y_hat = self.model.predict(x_transform)
+            return y_hat
+        except Exception as e:
+            raise ScorePredictionException(e,sys)
+
 
 def evaluate_models(X_train, y_train, X_test, y_test, models, param):
     try:
@@ -44,7 +60,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
                 "train_mae": train_mae,
                 "best_params": gs.best_params_
             }
-
+            
         return report
     except Exception as e:
         raise ScorePredictionException(e, sys)

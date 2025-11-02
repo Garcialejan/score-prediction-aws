@@ -64,7 +64,51 @@ Model Trainer ralated constant start with MODE TRAINER VAR NAME
 MODEL_TRAINER_DIR_NAME: str = "model_trainer"
 MODEL_TRAINER_TRAINED_MODEL_DIR: str = "trained_model"
 MODEL_TRAINER_TRAINED_MODEL_NAME: str = "model.pkl"
-MODEL_TRAINER_EXPECTED_SCORE: float = 0.7
+MODEL_TRAINER_EXPECTED_R2: float = 0.7
 MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD: float = 0.05
+# TRAINING_BUCKET_NAME = "scorepredictiongarcialejan"
 
-TRAINING_BUCKET_NAME = "networksecuritygarcialejan"
+## MODEL TRAINING PARAMs
+RANDOM_FOREST_PARAMS: dict = {
+    'n_estimators': [32, 64, 128, 256],
+    'criterion':['squared_error', 'friedman_mse'],
+    'max_features':['sqrt','log2', None],
+}
+
+GRADIENT_BOOSTING_PARAMS: dict = {
+    'loss':['squared_error', 'huber'],
+    'learning_rate':[.1, .01, .05, .001],
+    'n_estimators': [32, 64, 128, 256],
+    'subsample':[0.6, 0.7, 0.8, 0.9, 1],
+    'max_features':['sqrt','log2', None],
+    # 'criterion':['squared_error', 'friedman_mse'],
+}
+
+XGB_PARAMS: dict = {
+    'learning_rate':[.1, .01, .05, .001],
+    'n_estimators': [32, 64, 128, 256],
+    'subsample':[0.6, 0.7, 0.8, 0.9, 1],
+    'reg_alpha': [0.2, 0.5, 0.7, 1],
+    'reg_lambda': [1, 5, 10]
+}
+
+CATBOOSTING_PARAMS: dict = {
+    'depth': [6, 8, 10],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'iterations': [30, 50, 100]
+}
+
+ADABOOST_PARAMS: dict = {
+    'n_estimators': [32, 50, 64, 128, 256],
+    'learning_rate':[.1, .01, .05, .001],
+    # 'loss':['linear','square','exponential'],
+}
+
+KNEIGHBORS_PARAMS: dict = {
+    'n_neighbors': [3, 5, 10],
+}
+
+ELASTICNET_PARAMS: dict = {
+    'alpha': [0.01, 0.1, 1.0, 10.0],
+    'l1_ratio': [0.2, 0.5, 0.7, 1]
+}

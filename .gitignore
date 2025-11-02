@@ -121,3 +121,4 @@ venv.bak/
 **/final_models/
 *.pyc
 **/logs
+**/catboost_info
