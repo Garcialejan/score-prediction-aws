@@ -12,7 +12,7 @@ class TrainingPipelineConfig():
         self.pipeline_name = constants.PIPELINE_NAME
         self.artifact_name = constants.ARTIFACT_DIR
         self.artifact_dir = os.path.join(self.artifact_name, timestamp)
-        self.model_dir=os.path.join("final_models")
+        self.model_dir=os.path.join("final_model")
         self.timestamp:str = timestamp
 
 ''' Old version for DataIngestionConfig()'''
@@ -23,9 +23,9 @@ class TrainingPipelineConfig():
 #     raw_data_path: str=os.path.join('artifacts',"data.csv")
 
 class DataIngestionConfig():
-    def __init__(self, constants_config:TrainingPipelineConfig):
+    def __init__(self, training_pipeline_config:TrainingPipelineConfig):
         self.data_ingestion_dir:str = os.path.join(
-            constants_config.artifact_dir,
+            training_pipeline_config.artifact_dir,
             constants.DATA_INGESTION_DIR_NAME
         )
         self.feature_store_file_path: str = os.path.join(
