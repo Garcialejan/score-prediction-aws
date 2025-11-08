@@ -23,6 +23,8 @@ from src.entity.artifact_entity import ModelTrainerArtifact, DataTransformationA
 from src.entity.config_entity import ModelTrainerConfig
 from src.constants import RANDOM_FOREST_PARAMS, GRADIENT_BOOSTING_PARAMS, XGB_PARAMS,\
                           CATBOOSTING_PARAMS, ADABOOST_PARAMS, KNEIGHBORS_PARAMS, ELASTICNET_PARAMS
+                          
+from src.constants import MODEL_TRAINER_TRAINED_MODEL_NAME, PREPROCESSING_OBJECT_FILE_NAME
 
 import mlflow
 from urllib.parse import urlparse
@@ -146,9 +148,11 @@ class ModelTrainer:
 
         Score_Model = ScoreModel(preprocessor = preprocessor, model = best_model)
         save_object(self.model_trainer_config.trained_model_file_path,obj = Score_Model)
+        
         # model pusher
-        save_object("./final_models/model.pkl",best_model)
-            
+        save_object(f"./final_models/{PREPROCESSING_OBJECT_FILE_NAME}", preprocessor)
+        save_object(f"./final_models/{MODEL_TRAINER_TRAINED_MODEL_NAME}", best_model)
+        
         ## Model Trainer Artifact
         model_trainer_artifact = ModelTrainerArtifact(
             trained_model_file_path = self.model_trainer_config.trained_model_file_path,

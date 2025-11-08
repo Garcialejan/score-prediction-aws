@@ -24,7 +24,7 @@ from src.entity.artifact_entity import (
     ModelTrainerArtifact
     )
 
-from src.constants import TRAINING_BUCKET_NAME
+from src.constants import TRAINING_BUCKET_NAME, MODEL_TRAINER_TRAINED_MODEL_NAME, PREPROCESSING_OBJECT_FILE_NAME
 from src.cloud.s3_syncer import S3Sync
 
 class TrainingPipeline:
@@ -82,7 +82,7 @@ class TrainingPipeline:
         except Exception as e:
             raise ScorePredictionException(e, sys)
         
-    ## local artifact is going to s3 bucket    
+    ## local artifact is going to s3 bucket   
     def sync_artifact_dir_to_s3(self):
         try:
             aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/artifact/{self.training_pipeline_config.timestamp}"
@@ -90,10 +90,18 @@ class TrainingPipeline:
         except Exception as e:
             raise ScorePredictionException(e,sys)
         
-    ## local final model is going to s3 bucket 
+    ## local final model is going to s3 bucket
     def sync_saved_model_dir_to_s3(self):
         try:
-            aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/final_model/{self.training_pipeline_config.timestamp}"
+            aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/final_model/{MODEL_TRAINER_TRAINED_MODEL_NAME}"
+            self.s3_sync.sync_folder_to_s3(folder = self.training_pipeline_config.model_dir, aws_bucket_url = aws_bucket_url)
+        except Exception as e:
+            raise ScorePredictionException(e,sys)
+        
+    ## local preprocessor is going to s3 bucket
+    def sync_saved_preprocessor_dir_to_s3(self):
+        try:
+            aws_bucket_url = f"s3://{TRAINING_BUCKET_NAME}/final_model/{PREPROCESSING_OBJECT_FILE_NAME}"
             self.s3_sync.sync_folder_to_s3(folder = self.training_pipeline_config.model_dir, aws_bucket_url = aws_bucket_url)
         except Exception as e:
             raise ScorePredictionException(e,sys)
@@ -107,6 +115,7 @@ class TrainingPipeline:
             
             self.sync_artifact_dir_to_s3()
             self.sync_saved_model_dir_to_s3()
+            self.sync_saved_preprocessor_dir_to_s3()
             
             return model_trainer_artifact
         except Exception as e:
